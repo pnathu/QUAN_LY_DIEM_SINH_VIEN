@@ -440,10 +440,10 @@ void nhapMatKhau(char mk[], int x, int y) {
     while (1) {
         gotoxy(82, y);
         if(hienMK) {
-            printf(GREEN "[ SHOW ]" RESET);
+            printf(GREEN "[SHOW]" RESET);
         }
         else {
-            printf(YELLOW "[ HIDE ]" RESET);
+            printf(YELLOW "[HIDE]" RESET);
         }
         gotoxy(x + i, y);
         ch = getch();
@@ -533,6 +533,7 @@ int dangNhapGiangVien() {
         int chon;
         gotoxy(38, 21);
         printf(RED "[ X ] TAI KHOAN HOAC MAT KHAU KHONG DUNG!" RESET);
+        Sleep(1000);
         system("cls");
         lecturerLoginBox();
 
@@ -596,6 +597,10 @@ int dangNhapSinhVien() {
         int chon;
         gotoxy(36, 21);
         printf(RED "[ X ] MA SINH VIEN HOAC MAT KHAU KHONG DUNG!" RESET);
+        Sleep(1000);
+        system("cls");
+        studentLoginBox();
+
         gotoxy(45, 23);
         printf(RED"1. NHAP LAI");
         gotoxy(65, 23);
@@ -1361,6 +1366,16 @@ int ChuaNhapDiem(int i) {
 	return 0;
 }
 
+int daSuaCot(int cot, int dsCotSua[], int soCotSua) {
+    int i;
+    for(i = 0; i < soCotSua; i++) {
+        if(dsCotSua[i] == cot) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
 void Sua() {
 
     char nhapTimKiem[100]; 
@@ -1721,7 +1736,7 @@ void Sua() {
             printf("\n");
 
             printCenter(BOLD_CYAN "+--------------------------------------------------------------------------------------------------+" RESET);
-            printCenter(BOLD_CYAN "|                              BANG DIEM HOC PHAN CAN CHINH SUA                                    |" RESET);
+            printCenter(BOLD_CYAN "|                                BANG DIEM HOC PHAN CAN CHINH SUA                                  |" RESET);
             printCenter(BOLD_CYAN "+--------------------------------------------------------------------------------------------------+" RESET);
 
             char dongMon[150];
@@ -1735,13 +1750,13 @@ void Sua() {
             printf("\n");
 
             printCenter(BOLD_CYAN "+--------------------------------------------------------------------------------------------------+" RESET);
-            printCenter(BOLD_CYAN "|      MSSV       |          HO TEN          |  Lab1  |   Lab2  |  PT1   |  PT2   |  Pre  |  Final |" RESET);
+            printCenter(BOLD_CYAN "|      MSSV       |          HO TEN         |  Lab1  |  Lab2  |  PT1   |  PT2   |   Pre  |  Final  |" RESET);
             printCenter(BOLD_CYAN "+--------------------------------------------------------------------------------------------------+" RESET);
 
             char row[300];
 
             sprintf(row,
-                    "| %-15s | %-24s | %-5.1f | %-6.1f | %-6.1f | %-6.1f | %-6.1f | %-5.1f |",
+                    "| %-15s | %-23s | %-6.1f | %-6.1f | %-6.1f | %-6.1f | %-6.1f | %-7.1f |",
                     maTam[k],
                     tenTam[k],
                     bL1[k],
@@ -1758,116 +1773,192 @@ void Sua() {
             printf("\n");
 
             //=================================================
+            //=================================================
+//================ CHON SO COT MUON SUA ================
 
-            printf(GREEN "CHON COT CAN SUA CUA MON %s:" RESET "\n",
-                   dsHocPhan[indexMonCanSua]);
-
-            printf(MAGENTA "1.Lab1   2.Lab2   3.PT1   4.PT2   5.Pre   6.Final" RESET "\n");
-            
+            int soCotSua;
+            printf(GREEN "BAN MUON SUA BAO NHIEU COT DIEM? " RESET);
             while (1) {
+            printf(CYAN "(1 - 6): " RESET);
+    if (scanf("%d", &soCotSua) != 1) {
+        while(getchar() != '\n');
+        xoaDongVuaNhap();
+        continue;
+    }
 
-                printf(CYAN "Lua chon cot (1-6): " RESET);
+    while(getchar() != '\n');
 
-                if (scanf("%d", &chonCot) != 1) { 
+    if (soCotSua < 1 || soCotSua > 6) {
 
-                    while(getchar() != '\n'); 
+        xoaDongVuaNhap();
 
-                    xoaDongVuaNhap(); 
+        continue;
+    }
 
-                    continue; 
-                }
+    break;
+}
 
-                if (chonCot < 1 || chonCot > 6) {
+int dsCotSua[6];
 
-                    xoaDongVuaNhap();
+printf(GREEN "CHON CAC COT CAN SUA CUA MON %s:" RESET "\n",
+       dsHocPhan[indexMonCanSua]);
 
-                    continue;
-                }
+printf(MAGENTA "1.Lab1   2.Lab2   3.PT1   4.PT2   5.Pre   6.Final" RESET "\n");
 
-                if (chonCot == 1) diemHienTai = bL1[k];
-                else if (chonCot == 2) diemHienTai = bL2[k];
-                else if (chonCot == 3) diemHienTai = bP1[k];
-                else if (chonCot == 4) diemHienTai = bP2[k];
-                else if (chonCot == 5) diemHienTai = bPr[k];
-                else if (chonCot == 6) diemHienTai = bFi[k];
-                
-                if (diemHienTai == -1.0) {
+for(i = 0; i < soCotSua; i++) {
 
-                    xoaDongVuaNhap(); 
+    while (1) {
 
-                    printf(RED "    (!) Cot nay chua co diem!\n" RESET);
+        printf(CYAN "Nhap cot thu %d (1-6): " RESET, i + 1);
 
-                    Sleep(1000);
-
-                    xoaDongVuaNhap(); 
-
-                    continue; 
-                }
-
-                break; 
-            }
-
-            printf("\n");
+        if (scanf("%d", &chonCot) != 1) {
 
             while(getchar() != '\n');
 
-            float diem = NhapMotCotDiem("diem moi", diemHienTai);
+            xoaDongVuaNhap();
 
-            if (diem == -2.0) {
+            continue;
+        }
 
-                printf(RED "\n[THONG BAO] Da huy thao tac sua!\n" RESET);
+        while(getchar() != '\n');
 
-                Sleep(1200);
+        if (chonCot < 1 || chonCot > 6) {
 
-                break; 
+            printf(RED "(!) Cot khong hop le!\n" RESET);
+
+            Sleep(1000);
+
+            continue;
+        }
+
+        int trung = 0;
+
+        for(j = 0; j < i; j++) {
+
+            if(dsCotSua[j] == chonCot) {
+
+                trung = 1;
+
+                break;
             }
+        }
 
-            switch(chonCot) {
+        if(trung) {
 
-                case 1: bL1[k] = diem; break;
-                case 2: bL2[k] = diem; break;
-                case 3: bP1[k] = diem; break;
-                case 4: bP2[k] = diem; break;
-                case 5: bPr[k] = diem; break;
-                case 6: bFi[k] = diem; break;
-            }
+            printf(RED "(!) Cot nay da duoc chon!\n" RESET);
 
+            Sleep(1000);
 
+            continue;
+        }
+
+        if (chonCot == 1) diemHienTai = bL1[k];
+        else if (chonCot == 2) diemHienTai = bL2[k];
+        else if (chonCot == 3) diemHienTai = bP1[k];
+        else if (chonCot == 4) diemHienTai = bP2[k];
+        else if (chonCot == 5) diemHienTai = bPr[k];
+        else if (chonCot == 6) diemHienTai = bFi[k];
+
+        if (diemHienTai == -1.0) {
+
+            printf(RED "(!) Cot nay chua co diem de sua!\n" RESET);
+
+            Sleep(1000);
+
+            continue;
+        }
+
+        dsCotSua[i] = chonCot;
+
+        break;
+    }
+}
+
+printf("\n");
+
+//================ NHAP DIEM MOI =================
+
+for(i = 0; i < soCotSua; i++) {
+
+    chonCot = dsCotSua[i];
+
+    if (chonCot == 1) diemHienTai = bL1[k];
+    else if (chonCot == 2) diemHienTai = bL2[k];
+    else if (chonCot == 3) diemHienTai = bP1[k];
+    else if (chonCot == 4) diemHienTai = bP2[k];
+    else if (chonCot == 5) diemHienTai = bPr[k];
+    else if (chonCot == 6) diemHienTai = bFi[k];
+
+    printf("\n");
+
+    float diem = NhapMotCotDiem("diem moi", diemHienTai);
+
+    if (diem == -2.0) {
+
+        printf(RED "\n[THONG BAO] Da huy thao tac sua!\n" RESET);
+
+        Sleep(1200);
+
+        break;
+    }
+
+    switch(chonCot) {
+
+        case 1: bL1[k] = diem; break;
+        case 2: bL2[k] = diem; break;
+        case 3: bP1[k] = diem; break;
+        case 4: bP2[k] = diem; break;
+        case 5: bPr[k] = diem; break;
+        case 6: bFi[k] = diem; break;
+    }
+}
             system("cls");
 
             printf("\n");
 
             printCenter(BOLD_CYAN "+--------------------------------------------------------------------------------------------------+" RESET);
-            printCenter(BOLD_CYAN "|                                  CAP NHAT DIEM THANH CONG                                         |" RESET);
+            printCenter(BOLD_CYAN "|                                    CAP NHAT DIEM THANH CONG                                      |" RESET);
             printCenter(BOLD_CYAN "+--------------------------------------------------------------------------------------------------+" RESET);
 
             printf("\n");
 
             printCenter(BOLD_CYAN "+--------------------------------------------------------------------------------------------------+" RESET);
-            printCenter(BOLD_CYAN "|     MSSV      |          HO TEN           | Lab1   | Lab2   |  PT1   |  PT2   |   Pre  |  Final  |" RESET);
+            printCenter(BOLD_CYAN "|      MSSV       |          HO TEN         |  Lab1  |  Lab2  |  PT1   |  PT2   |   Pre  |  Final  |" RESET);
             printCenter(BOLD_CYAN "+--------------------------------------------------------------------------------------------------+" RESET);
 
-            printf("               | %-10s | %-28s | ",
+            printf("          | %-15s | %-23s | ",
             maTam[k],
             tenTam[k]);
 
-            if (chonCot == 1) printf(GREEN "%-4.1f" RESET " | ", bL1[k]);
-            else printf("%-4.1f | ", bL1[k]);
+            if (daSuaCot(1, dsCotSua, soCotSua))
+    printf(GREEN "%-6.1f" RESET " | ", bL1[k]);
+else
+    printf("%-6.1f | ", bL1[k]);
 
-            if (chonCot == 2) printf(GREEN "%-4.1f" RESET " | ", bL2[k]);
-            else printf("%-4.1f | ", bL2[k]);
+if (daSuaCot(2, dsCotSua, soCotSua))
+    printf(GREEN "%-6.1f" RESET " | ", bL2[k]);
+else
+    printf("%-6.1f | ", bL2[k]);
 
-            if (chonCot == 3) printf(GREEN "%-4.1f" RESET " | ", bP1[k]);
-            else printf("%-4.1f | ", bP1[k]);
+if (daSuaCot(3, dsCotSua, soCotSua))
+    printf(GREEN "%-6.1f" RESET " | ", bP1[k]);
+else
+    printf("%-6.1f | ", bP1[k]);
 
-            if (chonCot == 4) printf(GREEN "%-4.1f" RESET " | ", bP2[k]);
-            else printf("%-4.1f | ", bP2[k]);
+if (daSuaCot(4, dsCotSua, soCotSua))
+    printf(GREEN "%-6.1f" RESET " | ", bP2[k]);
+else
+    printf("%-6.1f | ", bP2[k]);
 
-            if (chonCot == 5) printf(GREEN "%-4.1f" RESET " | ", bPr[k]);
-            else printf("%-4.1f | ", bPr[k]);
+if (daSuaCot(5, dsCotSua, soCotSua))
+    printf(GREEN "%-6.1f" RESET " | ", bPr[k]);
+else
+    printf("%-6.1f | ", bPr[k]);
 
-            if (chonCot == 6) printf(GREEN "%-5.1f" RESET " |", bFi[k]);
-            else printf("%-5.1f |", bFi[k]);
+if (daSuaCot(6, dsCotSua, soCotSua))
+    printf(GREEN "%-7.1f" RESET " |", bFi[k]);
+else
+    printf("%-7.1f |", bFi[k]);
 
             printf("\n");
 
