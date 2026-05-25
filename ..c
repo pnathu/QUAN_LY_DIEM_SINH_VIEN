@@ -103,6 +103,14 @@ char gvDangNhap[30];
 char tenHp[30];
 char tenFile[50];
 
+int khoaLab1 = 0;
+int khoaLab2 = 0;
+int khoaPT1 = 0;
+int khoaPT2 = 0;
+int khoaPre = 0;
+int khoaFinal = 0;
+
+
 // Forward declaration
 int binary_search(char *ma);
 
@@ -177,6 +185,51 @@ void docDanhSachMon() {
     for (i = 0; i < soHp; i++) {
         fscanf(f, "%s\n", dsHocPhan[i]); 
     }
+    fclose(f);
+}
+
+void luuTrangThaiCot() {
+    char fileTrangThai[100];
+    sprintf(fileTrangThai,
+            "%s_trangthai.txt",
+            tenHp);
+    FILE *f = fopen(fileTrangThai, "w");
+    if(f == NULL) return;
+    fprintf(f,
+            "%d %d %d %d %d %d",
+            khoaLab1,
+            khoaLab2,
+            khoaPT1,
+            khoaPT2,
+            khoaPre,
+            khoaFinal);
+    fclose(f);
+}
+
+void docTrangThaiCot() {
+    char fileTrangThai[100];
+    sprintf(fileTrangThai,
+            "%s_trangthai.txt",
+            tenHp);
+    FILE *f = fopen(fileTrangThai, "r");
+    if(f == NULL) {
+        khoaLab1 = 0;
+        khoaLab2 = 0;
+        khoaPT1 = 0;
+        khoaPT2 = 0;
+        khoaPre = 0;
+        khoaFinal = 0;
+        return;
+    }
+
+    fscanf(f,
+           "%d %d %d %d %d %d",
+           &khoaLab1,
+           &khoaLab2,
+           &khoaPT1,
+           &khoaPT2,
+           &khoaPre,
+           &khoaFinal);
     fclose(f);
 }
 
@@ -544,7 +597,7 @@ int dangNhapGiangVien() {
         printf(RED"0. THOAT");
 
         gotoxy(42, 22);
-        printf(GREEN "Nhap lua chon: ");
+        printf(GREEN "Nhap lua chon cua ban: ");
 
         showCursor();
 
@@ -570,7 +623,6 @@ int dangNhapSinhVien() {
         gotoxy(57, 12);
 
         showCursor();
-
         scanf("%29s", tk);
         if(strcmp(tk, "0") == 0) {
             return 0;
@@ -606,7 +658,7 @@ int dangNhapSinhVien() {
         gotoxy(65, 23);
         printf(RED"0. THOAT");
         gotoxy(42, 27);
-        printf(GREEN "Nhap lua chon: ");
+        printf(GREEN "Nhap lua chon cua ban: ");
         showCursor();
         scanf("%d", &chon);
         if(chon == 0) {
@@ -870,9 +922,11 @@ int menuHocPhan() {
         
         if (chon == 0) return 0;
         if (chon >= 1 && chon <= soHp) {
+
             strcpy(tenHp, dsHocPhan[chon - 1]);
             taoTenFile();
             docFile();
+            docTrangThaiCot();
             return 1;
         } else if (chon == soHp + 1) {
             themHp();
@@ -918,9 +972,10 @@ int HocPhan() {
         while (getchar() != '\n'); 
         if (chon == 0) return 0;
         if (chon >= 1 && chon <= soHp) {
-            strcpy(tenHp, dsHocPhan[chon - 1]);
+            strcpy(tenHp, dsHocPhan[chon - 1]); 
             taoTenFile();
-            docFile(); 
+            docFile();
+            docTrangThaiCot();
             return 1;
         } else {
             printCenter(RED "Lua chon khong hop le!" RESET);
@@ -950,141 +1005,398 @@ void DanhSachSV() {
     printf(CYAN"+-----+------------+---------------------+------+------+------+------+------+------+------+\n"RESET);
 }
 
-float NhapMotCotDiem(char tenCot[], float diemCu) {
+
+// ===================== NHAP 1 DIEM =====================
+
+float NhapMotDiem(char tenCot[], float diemCu, int daKhoa) {
     char s[50];
     float diem;
+    if(daKhoa == 1) {
+        gotoxy(30, 50);
+        printf(YELLOW
+               " [DA XAC NHAN] Cot %s da bi khoa!\n"
+               RESET,
+               tenCot);
+        Sleep(700);
+        return diemCu;
+    }
     while(1) {
-        if (diemCu != -1) {
-            printf("Nhap %s (Hien tai: %.1f, Nhan ENTER de giu nguyen, 'q' de dung): ", tenCot, diemCu);
-        } else {
-            printf("Nhap %s (Go 'q' de dung) : ", tenCot);
+        if(diemCu != -1) {
+            printf("Nhap %s (Hien tai: %.1f, ENTER = GIU NGUYEN, q = DUNG): ",
+                   tenCot,
+                   diemCu);
         }
-		if (fgets(s, sizeof(s), stdin) == NULL) continue;
-        s[strcspn(s, "\n")] = '\0'; 
-        if (strlen(s) == 0 && diemCu != -1) {
-            return diemCu; 
+        else {
+            printf("Nhap %s (q = DUNG): ",
+                   tenCot);
         }
-        if (strcmp(s, "q") == 0 || strcmp(s, "Q") == 0) {
-            return -2.0; 
+        if(fgets(s, sizeof(s), stdin) == NULL) continue;
+        s[strcspn(s, "\n")] = '\0';
+        if(strcmp(s, "q") == 0 || strcmp(s, "Q") == 0) {
+            return -999;
         }
-        if (strcmp(s, "0") == 0 || strcmp(s, "0.0") == 0) {
-            return 0.0;
+        if(strlen(s) == 0 && diemCu != -1) {
+            return diemCu;
+        }
+        if(strcmp(s, "0") == 0 || strcmp(s, "0.0") == 0) {
+            return 0;
         }
         diem = atof(s);
-        if (diem > 0.0 && diem <= 10.0) {
+        if(diem >= 0.0 && diem <= 10.0) {
             return diem;
         }
-		printf(RED " (!) Du lieu khong hop le. Vui long thu lai!\n" RESET);
-        Sleep(800);
-        xoaDongVuaNhap(); 
+        printf(RED
+               " (!) Diem khong hop le. Nhap lai!\n"
+               RESET);
+        Sleep(700);
+        xoaDongVuaNhap();
         xoaDongVuaNhap();
     }
 }
 
-int NhapDiemMotSV(int k) {
-    float tam;
-    fflush(stdin); 
-    printf(HIGHLIGHT_YELLOW "\n>>> CAP NHAT DIEM CHO: %s\n" RESET, tenSV[k]);
-    tam = NhapMotCotDiem("Lab1", lab1[k]);
-    if (tam == -2.0) return 0;
-    lab1[k] = tam;
-    luuFile();
-    xoaDongVuaNhap();
-    printf("   + Lab1 : " GREEN "%.1f" RESET "\n", lab1[k]);
-    tam = NhapMotCotDiem("Lab2", lab2[k]);
-    if (tam == -2.0) return 0;
-    lab2[k] = tam;
-    luuFile();
-    xoaDongVuaNhap();
-    printf("   + Lab2 : " GREEN "%.1f" RESET "\n", lab2[k]);
-	tam = NhapMotCotDiem("Pt1", pt1[k]);
-    if (tam == -2.0) return 0;
-    pt1[k] = tam;
-    luuFile();
-    xoaDongVuaNhap();
-    printf("   + PT1  : " GREEN "%.1f" RESET "\n", pt1[k]);
-    tam = NhapMotCotDiem("Pt2", pt2[k]);
-    if (tam == -2.0) return 0;
-    pt2[k] = tam;
-    luuFile();
-    xoaDongVuaNhap();
-    printf("   + PT2  : " GREEN "%.1f" RESET "\n", pt2[k]);
-    tam = NhapMotCotDiem("Pre", pre[k]);
-    if (tam == -2.0) return 0;
-    pre[k] = tam;
-    luuFile();
-    xoaDongVuaNhap();
-    printf("   + Pre  : " GREEN "%.1f" RESET "\n", pre[k]);
-    tam = NhapMotCotDiem("Final", final[k]);
-    if (tam == -2.0) return 0;
-    final[k] = tam;
-    luuFile();
-    xoaDongVuaNhap();
-    printf("   + Final: " GREEN "%.1f" RESET "\n", final[k]);
-    if (lab1[k] != -1 && lab2[k] != -1 && pt1[k] != -1 && pt2[k] != -1 && pre[k] != -1 && final[k] != -1) {
-        printf("   ==> " BOLD_CYAN "DIEM TRUNG BINH : %.1f" RESET "\n", tinhTB(k));
-        printf(YELLOW "\nDa hoan thanh cap nhat full diem cho sinh vien nay!" RESET);
-    } else {
-        printf(YELLOW "\nDa luu tam thoi cac cot diem cho sinh vien nay." RESET);
-    }
-    Sleep(1000);
-    return 1; 
+// ===================== MENU XAC NHAN =====================
+int XacNhanCot(char tenCot[]) {
+    int chon;
+    printf("\n");
+    printCenter(BOLD_CYAN
+           "+-----------------------------------------------+"
+           RESET);
+    printCenter(BOLD_CYAN
+           "|              XAC NHAN COT DIEM                |"
+           RESET);
+    printCenter(BOLD_CYAN
+           "+-----------------------------------------------+"
+           RESET);
+    printf(YELLOW
+           "                                   |      Ban co chac chan XAC NHAN cot %-5s ?    |"
+           RESET,
+           tenCot);
+    printCenter(RED
+           "\n                                   |       Sau khi xac nhan se KHONG THE SUA!      |"
+           RESET);
+     printCenter(BOLD_CYAN
+           "|                                               |"RESET);
+    printf("                                   |                  1. Xac nhan                  |");
+    printf("\n                                   |                  2. Nhap lai                  |");
+    printf("\n                                   |                  0. Quay lai                  |\n");
+    printCenter(BOLD_CYAN
+           "|                                               |"
+           RESET);
+    printf(GREEN "                                  |       Nhap lua chon cua ban: " RESET);
+
+    scanf("%d", &chon);
+    while(getchar() != '\n');
+
+printCenter(BOLD_CYAN
+       "|                                               |"
+       RESET);
+
+printCenter(BOLD_CYAN
+       "+-----------------------------------------------+"
+       RESET);
+    return chon;
 }
 
-void Nhap() {
-    int start, end;
-    char line[100];
 
+
+// ===================== NHAP THEO COT =====================
+void NhapTheoCot(char tenCot[],
+                 float diem[],
+                 int *khoaCot) {
+    int i;
+    int chon;
+    if(*khoaCot == 1) {
+        gotoxy(30,50);
+        printf(RED
+               "\n[!] Cot %s da duoc xac nhan va bi khoa!"
+               RESET,
+               tenCot);
+        getch();
+        return;
+    }
+    // ===================== NHAP TOAN BO COT =====================
+    system("cls");
+    printf(BOLD_CYAN);
+    printf("\n================ NHAP DIEM %s ================\n",
+           tenCot);
+    printf(RESET);
+    for(i = 0; i < n; i++) {
+        float tam;
+        printf("\n");
+        printf(CYAN
+               "[%02d] %-30s"
+               RESET,
+               i + 1,
+               tenSV[i]);
+
+        tam = NhapMotDiem(tenCot,
+                          diem[i],
+                          *khoaCot);
+
+        // ===================== DUNG GIUA CHUNG =====================
+
+        if(tam == -999) {
+            printCenter(YELLOW
+                   "\n[THONG BAO] Da dung nhap giua chung!"
+                   RESET);
+            printCenter(YELLOW
+                   "\nCac diem truoc do da duoc luu tam thoi."
+                   RESET);
+            Sleep(1200);
+            return;
+        }
+        diem[i] = tam;
+        luuFile();
+        printf(GREEN
+               "   -> Da luu %.1f"
+               RESET,
+               diem[i]);
+    }
+
+    // ===================== FLOW XAC NHAN =====================
     while(1) {
         system("cls");
-        if (menuHocPhan() == 0) return; 
-        
+        printf(BOLD_CYAN);
+        printf("                             ================ DANH SACH SINH VIEN VÀ DIEM %s ================\n",
+                    tenCot);
+        printf(RESET);
+        printf("\n");  
+        // ===================== HIEN THI DANH SACH =====================
+        printf(BOLD_CYAN "+------------------------------------------------------+\n" RESET);
+                printf(BOLD_CYAN "| STT |    MSSV    |         HO VA TEN         | %-5s |\n" RESET, tenCot);
+                printf(BOLD_CYAN "+------------------------------------------------------+\n" RESET);
+
+                for(i = 0; i < n; i++) {
+                    printf("| %-3d | %-10s | %-25s |", i + 1, maSV[i], tenSV[i]);
+
+                 if(diem[i] == -1) {
+                 printf(RED "%-5s" RESET, "N/A");
+                 }
+                else {
+                 printf(GREEN "  %-5.1f" RESET, diem[i]);
+                }
+         printf("|\n");
+    }
+
+printf(BOLD_CYAN "+-------------------------------------------------------+\n" RESET);
+        // ===================== KIEM TRA THIEU =====================
+        int thieu = 0;
+        for(i = 0; i < n; i++) {
+            if(diem[i] == -1) {
+                thieu = 1;
+                break;
+            }
+        }
+        if(thieu == 1) {
+            printCenter(RED
+                   "\n[!] Van con sinh vien chua nhap diem!"
+                   RESET);
+            printCenter(YELLOW
+                   "\nCan nhap day du truoc khi xac nhan."
+                   RESET);
+        }
+        // ===================== MENU XAC NHAN =====================
+        chon = XacNhanCot(tenCot);
+        // ===================== XAC NHAN =====================
+        if(chon == 1) {
+            if(thieu == 1) {
+                printCenter(RED
+                       "\n[!] Khong the xac nhan vi con thieu diem!"
+                       RESET);
+                Sleep(1000);
+                continue;
+            }
+            *khoaCot = 1;
+            luuTrangThaiCot();
+            system("cls");
+
+            printf("\n");
+            printCenter(GREEN
+                   "+--------------------------------+"
+                   RESET);
+            gotoxy(30,50);
+            printf(GREEN
+                   "|   DA KHOA COT DIEM %-8s |"
+                   RESET,
+                   tenCot);
+            printCenter(GREEN
+                   "+--------------------------------+\n"
+                   RESET);
+
+            luuFile();
+            Sleep(1200);
+            return;
+        }
+        // ===================== NHAP LAI =====================
+        else if(chon == 2) {
+            int sttSua;
+            while(1) {
+                system("cls");
+                printf(BOLD_CYAN);
+                printf("\n                           ======================== SUA DIEM COT %s =======================\n",
+                       tenCot);
+
+                printf(RESET);
+                printf("\n");            
+                // ===================== HIEN THI DANH SACH =====================
+                printf(BOLD_CYAN "+------------------------------------------------------+\n" RESET);
+                printf(BOLD_CYAN "| STT |    MSSV    |         HO VA TEN         | %-5s |\n" RESET, tenCot);
+                printf(BOLD_CYAN "+------------------------------------------------------+\n" RESET);
+
+                for(i = 0; i < n; i++) {
+                    printf("| %-3d | %-10s | %-25s |", i + 1, maSV[i], tenSV[i]);
+
+                 if(diem[i] == -1) {
+                 printf(RED "%-5s" RESET, "N/A");
+                 }
+                else {
+                 printf(GREEN "  %-5.1f" RESET, diem[i]);
+                }
+    printf("|\n");
+}
+printf(BOLD_CYAN "+------------------------------------------------------+\n" RESET);
+
+                // ===================== CHON SV SUA =====================
+                printf(YELLOW
+                       "\nSua diem sinh vien nao? (1-%d)"
+                       RESET,
+                       n);
+                printCenter(RED
+                       "\nNhap 0 de quay lai xac nhan"
+                       RESET);
+                printCenter(GREEN
+                       "\n\nNhap lua chon cua ban: ");
+                scanf("%d", &sttSua);
+                while(getchar() != '\n');
+                if(sttSua == 0) {
+                    break;
+                }
+                if(sttSua < 1 || sttSua > n) {
+                    printCenter(RED
+                           "\n[!] STT khong hop le!"
+                           RESET);
+                    Sleep(700);
+                    continue;
+                }
+                // ===================== SUA DIEM =====================
+                printf("\n");
+                printf(CYAN
+                       "Dang sua: %s\n"
+                       RESET,
+                       tenSV[sttSua - 1]);
+                diem[sttSua - 1] =
+                    NhapMotDiem(tenCot,
+                                diem[sttSua - 1],
+                                *khoaCot);
+                luuFile();
+                printf(GREEN
+                       "\n[THANH CONG] Da cap nhat diem!"
+                       RESET);
+                Sleep(700);
+            }
+        }
+        // ===================== QUAY LAI =====================
+        else {
+            return;
+        }
+    }
+}
+// ===================== MENU NHAP =====================
+void Nhap() {
+    int chon;
+    char line[100];
+    chonHocPhan:
+        while(1) {
+    system("cls");
+
+    if(menuHocPhan() == 0) return;
+
         while(1) {
             system("cls");
             printf(BOLD_CYAN);
-            sprintf(line, "--- DU LIEU DIEM: %s ---", tenHp);
+            sprintf(line,
+                    "--- DU LIEU DIEM: %s ---",
+                    tenHp);
             printCenter(line);
             printf(RESET);
-            DanhSachSV(); 
-            
-            printf("\n" YELLOW "CHON KHOANG STT MUON NHAP (1-%d)" RESET " - Nhap 0 de DOI MON: ", n);
-            if (scanf("%d", &start) != 1) {
-                while(getchar() != '\n'); continue;
-            }
-            if (start == 0) break;
-            
-            if (scanf("%d", &end) != 1) {
-                while(getchar() != '\n'); continue;
-            }
-            
-            if (start > 0 && end <= n && start <= end) {
-                int i;
-                for (i = start - 1; i <= end - 1; i++) {
-                    system("cls");
-                    printf(CYAN "Dang nhap diem cho STT %d: %s\n" RESET, i + 1, tenSV[i]);
-                    
-                    if (lab1[i] != -1 && lab2[i] != -1 && pt1[i] != -1 && 
-                        pt2[i] != -1 && pre[i] != -1 && final[i] != -1) {
-                        printf(RED "\n [!] Sinh vien %s da co du diem! Dang chuyen..." RESET, tenSV[i]);
-                        Sleep(400);
-                        continue;
-                    } else {
-                        if (NhapDiemMotSV(i) == 0) {
-                            printf(RED "\n[THONG BAO] Da bo qua va luu diem tam thoi cho sinh vien nay!" RESET);
-                            Sleep(800);
-                            
-                            continue; 
-						}
-                    }
-                }
-                system("cls");
-                DanhSachSV();
-                printf(GREEN "\n[THANH CONG] Da duyet qua het cac sinh vien tu STT %d den %d!" RESET, start, end);
-                printf("\nNhan phim bat ki de tiep tuc...");
-                getch();
-            } else {
-                printf(RED "\nKhoang STT khong hop le! Thu lai." RESET);
-                getch();
+            DanhSachSV();
+            // ===================== TRANG THAI =====================
+            printf("\n");
+            printCenter(BOLD_CYAN
+                   "+---------------------------------------------------+"
+                   RESET);
+            printCenter(BOLD_CYAN
+                   "|                TRANG THAI COT DIEM                |"
+                   RESET);
+            printCenter(BOLD_CYAN
+                   "+---------------------------------------------------+"
+                   RESET);
+            printf("                                 |              1. Lab1  : %s\n",
+                   khoaLab1 ? GREEN "DA XAC NHAN               |" RESET
+                             : YELLOW "CHUA XAC NHAN             |" RESET);
+
+            printf("                                 |              2. Lab2  : %s\n",
+                   khoaLab2 ? GREEN "DA XAC NHAN               |" RESET
+                             : YELLOW "CHUA XAC NHAN             |" RESET);
+
+            printf("                                 |              3. PT1   : %s\n",
+                   khoaPT1 ? GREEN "DA XAC NHAN                 |" RESET
+                             : YELLOW "CHUA XAC NHAN             |" RESET);
+
+            printf("                                 |              4. PT2   : %s\n",
+                   khoaPT2 ? GREEN "DA XAC NHAN                 |" RESET
+                             : YELLOW "CHUA XAC NHAN             |" RESET);
+
+            printf("                                 |              5. Pre   : %s\n",
+                   khoaPre ? GREEN "DA XAC NHAN                 |" RESET
+                             : YELLOW "CHUA XAC NHAN             |" RESET);
+
+            printf("                                 |              6. Final : %s\n",
+                   khoaFinal ? GREEN "DA XAC NHAN             |" RESET
+                             : YELLOW "CHUA XAC NHAN             |" RESET);
+
+            printCenter(BOLD_CYAN
+                   "+---------------------------------------------------+\n"
+                   RESET);
+            // ===================== MENU =====================
+            printf("\n");
+
+            printf("1. Nhap cot Lab1\n");
+            printf("2. Nhap cot Lab2\n");
+            printf("3. Nhap cot PT1\n");
+            printf("4. Nhap cot PT2\n");
+            printf("5. Nhap cot Pre\n");
+            printf("6. Nhap cot Final\n");
+            printf("0. Quay lai\n");
+            printf(GREEN "\nNhap lua chon cua ban: " RESET);
+            scanf("%d", &chon);
+            while(getchar() != '\n');
+    
+
+            switch(chon) {
+                case 1:
+                    NhapTheoCot("Lab1", lab1, &khoaLab1);
+                    break;
+                case 2:
+                    NhapTheoCot("Lab2", lab2, &khoaLab2);
+                    break;
+                case 3:
+                    NhapTheoCot("PT1", pt1, &khoaPT1);
+                    break;
+                case 4:
+                    NhapTheoCot("PT2", pt2, &khoaPT2);
+                    break;
+                case 5:
+                    NhapTheoCot("Pre", pre, &khoaPre);
+                    break;
+                case 6:
+                    NhapTheoCot("Final", final, &khoaFinal);
+                    break;
+                case 0:
+                    goto chonHocPhan;
+                default:
+                    printf(RED"\nLua chon khong hop le!"RESET);
+                    Sleep(700);
             }
         }
     }
@@ -1386,7 +1698,6 @@ void Sua() {
     int indexGoc[100];     
     int soLuongTimThay;
     int chon; 
-
     while (1) {
 
         while (1) {
@@ -1640,30 +1951,40 @@ void Sua() {
 
             int indexMonCanSua = -1;
 
-            while (1) {
+            int quayLai = 0;
 
-                if (scanf("%d", &chon) != 1) {
+while (1) {
 
-                    while(getchar() != '\n');
+    if (scanf("%d", &chon) != 1) {
 
-                    continue;
-                }
+        while(getchar() != '\n');
 
-                while(getchar() != '\n');
+        continue;
+    }
 
-                if (chon == 0) break;
+    while(getchar() != '\n');
 
-                if (chon >= 1 && chon <= soHp) {
+    if (chon == 0) {
 
-                    indexMonCanSua = chon - 1;
+        quayLai = 1;
 
-                    break;
-                }
+        break;
+    }
 
-                xoaDongVuaNhap();
-            }
+    if (chon >= 1 && chon <= soHp) {
 
-            if (chon == 0) continue;
+        indexMonCanSua = chon - 1;
+
+        break;
+    }
+
+    xoaDongVuaNhap();
+}
+
+if (quayLai) {
+
+    continue;
+}
 
             //=================================================
 
@@ -1891,7 +2212,7 @@ for(i = 0; i < soCotSua; i++) {
 
     printf("\n");
 
-    float diem = NhapMotCotDiem("diem moi", diemHienTai);
+    float diem = NhapMotDiem("diem moi", diemHienTai, 0);
 
     if (diem == -2.0) {
 
@@ -1967,6 +2288,71 @@ else
             printf("\n");
 
             printCenter(GREEN "[THANH CONG] Da cap nhat diem!" RESET);
+
+
+            int xacNhan;
+
+printf("\n");
+
+printCenter(YELLOW "BAN CO CHAC CHAN MUON SUA CAC DIEM VUA NHAP KHONG?" RESET);
+
+printf("\n\n");
+
+for(d = 0; d < 45; d++) printf(" ");
+
+printf(GREEN "[1] Dong y    [0] Huy sua: " RESET);
+
+while (1) {
+
+    if (scanf("%d", &xacNhan) != 1) {
+
+        while(getchar() != '\n');
+
+        xoaDongVuaNhap();
+
+        continue;
+    }
+
+    while(getchar() != '\n');
+
+    if (xacNhan == 0 || xacNhan == 1) break;
+
+    xoaDongVuaNhap();
+}
+
+if (xacNhan == 0) {
+
+    printCenter(RED "\n[THONG BAO] Da huy cap nhat diem!" RESET);
+
+    Sleep(1200);
+
+    continue;
+}
+
+            //================ GHI LAI FILE SAU KHI SUA ================
+
+FILE *fOut = fopen(fileSua, "w");
+
+if (fOut != NULL) {
+
+    fprintf(fOut, "%d\n", slTam);
+
+    for(i = 0; i < slTam; i++) {
+
+        fprintf(fOut,
+                "%s %s %.1f %.1f %.1f %.1f %.1f %.1f\n",
+                maTam[i],
+                tenTam[i],
+                bL1[i],
+                bL2[i],
+                bP1[i],
+                bP2[i],
+                bPr[i],
+                bFi[i]);
+    }
+
+    fclose(fOut);
+}
 
 //=================================================
             break; 
